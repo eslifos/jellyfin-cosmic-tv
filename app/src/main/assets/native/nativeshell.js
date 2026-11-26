@@ -106,7 +106,8 @@ function getDeviceProfile(profileBuilder, item) {
 window.NativeShell.AppHost = {
     init() {},
     getDefaultLayout() {
-        return "mobile";
+        // The TV layout (rows, remote navigation) on a television; the phone one elsewhere
+        return window.NativeInterface.isTelevision() ? "tv" : "mobile";
     },
     supports(command) {
         command = command.toLowerCase();

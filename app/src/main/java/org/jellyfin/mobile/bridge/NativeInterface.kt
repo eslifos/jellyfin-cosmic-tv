@@ -20,6 +20,7 @@ import org.jellyfin.mobile.events.ActivityEvent
 import org.jellyfin.mobile.events.ActivityEventHandler
 import org.jellyfin.mobile.player.deviceprofile.DeviceProfileBuilder
 import org.jellyfin.mobile.utils.Constants
+import org.jellyfin.mobile.utils.isTelevision
 import org.jellyfin.mobile.utils.Constants.EXTRA_ALBUM
 import org.jellyfin.mobile.utils.Constants.EXTRA_ARTIST
 import org.jellyfin.mobile.utils.Constants.EXTRA_CAN_SEEK
@@ -69,6 +70,10 @@ class NativeInterface(private val context: Context) : KoinComponent {
     } catch (e: Exception) {
         null
     }
+
+    /** On a television (Android TV, Google TV, Fire TV) the web app uses its TV layout, made for the remote. */
+    @JavascriptInterface
+    fun isTelevision(): Boolean = context.isTelevision()
 
     @JavascriptInterface
     fun getCodecCapabilities(): String = deviceProfileBuilder.getWebCodecCapabilitiesJson()

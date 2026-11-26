@@ -54,7 +54,9 @@ export class ExoPlayerPlugin {
     }
 
     canPlayItem(item, playOptions) {
+        // As the fallback of the web player, only what it hands over (a video it could only play transcoded)
         return this._nativePlayer.isEnabled() &&
+            (!this._nativePlayer.isFallbackOnly() || !!playOptions.nativeFallback) &&
             playOptions.fullscreen &&
             !this.playbackManager.syncPlayEnabled;
     }

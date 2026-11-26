@@ -107,6 +107,11 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
         val videoPlayerOptions = listOf(
             SelectionItem(VideoPlayerType.WEB_PLAYER, R.string.video_player_web, R.string.video_player_web_description),
             SelectionItem(
+                VideoPlayerType.WEB_PLAYER_NATIVE_FALLBACK,
+                R.string.video_player_web_native_fallback,
+                R.string.video_player_web_native_fallback_description,
+            ),
+            SelectionItem(
                 VideoPlayerType.EXO_PLAYER,
                 R.string.video_player_integrated,
                 R.string.video_player_native_description,
@@ -119,26 +124,28 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
         )
         singleChoice(Constants.PREF_VIDEO_PLAYER_TYPE, videoPlayerOptions) {
             titleRes = R.string.pref_video_player_type_title
-            initialSelection = VideoPlayerType.EXO_PLAYER
+            initialSelection = appPreferences.defaultVideoPlayerType
             defaultOnSelectionChange { selection ->
-                startLandscapeVideoInLandscapePreference.enabled = selection == VideoPlayerType.EXO_PLAYER
-                swipeGesturesPreference.enabled = selection == VideoPlayerType.EXO_PLAYER
-                rememberBrightnessPreference.enabled = selection == VideoPlayerType.EXO_PLAYER && swipeGesturesPreference.checked
-                pressSpeedUpPreference.enabled = selection == VideoPlayerType.EXO_PLAYER
-                backgroundAudioPreference.enabled = selection == VideoPlayerType.EXO_PLAYER
-                horizontalGesturePreference.enabled = selection == VideoPlayerType.EXO_PLAYER
-                directPlayAssPreference.enabled = selection == VideoPlayerType.EXO_PLAYER
-                networkBufferPreference.enabled = selection == VideoPlayerType.EXO_PLAYER
+                // The settings of the integrated player count also when it is the fallback of the web one
+                val integrated = selection == VideoPlayerType.EXO_PLAYER || selection == VideoPlayerType.WEB_PLAYER_NATIVE_FALLBACK
+                startLandscapeVideoInLandscapePreference.enabled = integrated
+                swipeGesturesPreference.enabled = integrated
+                rememberBrightnessPreference.enabled = integrated && swipeGesturesPreference.checked
+                pressSpeedUpPreference.enabled = integrated
+                backgroundAudioPreference.enabled = integrated
+                horizontalGesturePreference.enabled = integrated
+                directPlayAssPreference.enabled = integrated
+                networkBufferPreference.enabled = integrated
                 externalPlayerChoicePreference.enabled = selection == VideoPlayerType.EXTERNAL_PLAYER
             }
         }
         startLandscapeVideoInLandscapePreference = checkBox(Constants.PREF_EXOPLAYER_START_LANDSCAPE_VIDEO_IN_LANDSCAPE) {
             titleRes = R.string.pref_exoplayer_start_landscape_video_in_landscape
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+            enabled = appPreferences.usesIntegratedPlayer
         }
         swipeGesturesPreference = checkBox(Constants.PREF_EXOPLAYER_ALLOW_SWIPE_GESTURES) {
             titleRes = R.string.pref_exoplayer_allow_brightness_volume_gesture
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+            enabled = appPreferences.usesIntegratedPlayer
             defaultValue = true
             defaultOnCheckedChange { checked ->
                 rememberBrightnessPreference.enabled = checked
@@ -146,7 +153,7 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
         }
         rememberBrightnessPreference = checkBox(Constants.PREF_EXOPLAYER_REMEMBER_BRIGHTNESS) {
             titleRes = R.string.pref_exoplayer_remember_brightness
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER && appPreferences.exoPlayerAllowSwipeGestures
+            enabled = appPreferences.usesIntegratedPlayer && appPreferences.exoPlayerAllowSwipeGestures
             defaultOnCheckedChange { checked ->
                 if (!checked) appPreferences.exoPlayerBrightness = BRIGHTNESS_OVERRIDE_NONE
             }
@@ -154,24 +161,24 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
         pressSpeedUpPreference = checkBox(Constants.PREF_EXOPLAYER_ALLOW_PRESS_SPEED_UP) {
             titleRes = R.string.pref_exoplayer_allow_press_speed_up
             summaryRes = R.string.pref_exoplayer_allow_press_speed_up_summary
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+            enabled = appPreferences.usesIntegratedPlayer
             defaultValue = true
         }
         backgroundAudioPreference = checkBox(Constants.PREF_EXOPLAYER_ALLOW_BACKGROUND_AUDIO) {
             titleRes = R.string.pref_exoplayer_allow_background_audio
             summaryRes = R.string.pref_exoplayer_allow_background_audio_summary
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+            enabled = appPreferences.usesIntegratedPlayer
         }
         horizontalGesturePreference = checkBox(Constants.PREF_EXOPLAYER_ALLOW_HORIZONTAL_GESTURE) {
             titleRes = R.string.pref_exoplayer_allow_horizontal_gesture
             summaryRes = R.string.pref_exoplayer_allow_horizontal_gesture_summary
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+            enabled = appPreferences.usesIntegratedPlayer
             defaultValue = true
         }
         directPlayAssPreference = checkBox(Constants.PREF_EXOPLAYER_DIRECT_PLAY_ASS) {
             titleRes = R.string.pref_exoplayer_direct_play_ass
             summaryRes = R.string.pref_exoplayer_direct_play_ass_description
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+            enabled = appPreferences.usesIntegratedPlayer
         }
         val networkBufferOptions = listOf(
             SelectionItem(
@@ -193,7 +200,7 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
         networkBufferPreference = singleChoice(Constants.PREF_EXOPLAYER_NETWORK_BUFFER, networkBufferOptions) {
             titleRes = R.string.pref_exoplayer_network_buffer
             initialSelection = Constants.NETWORK_BUFFER_AUTO
-            enabled = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+            enabled = appPreferences.usesIntegratedPlayer
         }
 
         // Generate available external player options

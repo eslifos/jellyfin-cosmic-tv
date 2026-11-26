@@ -99,6 +99,8 @@
     <string name="video_player_integrated">Integrated player</string>
     <string name="video_player_external">External player</string>
     <string name="video_player_web_description">The default HTML video player from the Web UI</string>
+    <string name="video_player_web_native_fallback">Web player, integrated as fallback</string>
+    <string name="video_player_web_native_fallback_description">The same player as in the browser; a video it could only play transcoded opens in the integrated player</string>
     <string name="video_player_native_description">Based on ExoPlayer, supports more video formats and codecs, and is more integrated into the OS</string>
     <string name="video_player_external_description">External video playback apps like MX Player and VLC</string>
     <string name="pref_exoplayer_start_landscape_video_in_landscape">Start landscape mode videos in landscape orientation</string>

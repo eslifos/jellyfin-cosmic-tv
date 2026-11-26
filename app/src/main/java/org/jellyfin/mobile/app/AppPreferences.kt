@@ -10,11 +10,17 @@ import org.jellyfin.mobile.player.mediasegments.toMediaSegmentActionsString
 import org.jellyfin.mobile.settings.ExternalPlayerPackage
 import org.jellyfin.mobile.settings.VideoPlayerType
 import org.jellyfin.mobile.utils.Constants
+import org.jellyfin.mobile.utils.isTelevision
 import org.jellyfin.sdk.model.api.MediaSegmentType
 
 class AppPreferences(context: Context) {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
+
+    /** On a TV the player of the web comes first (the same as in the browser), with the integrated one as fallback. */
+    @VideoPlayerType
+    val defaultVideoPlayerType: String =
+        if (context.isTelevision()) VideoPlayerType.WEB_PLAYER_NATIVE_FALLBACK else VideoPlayerType.EXO_PLAYER
 
     var currentServerId: Long?
         get() = sharedPreferences.getLong(Constants.PREF_SERVER_ID, -1).takeIf { it >= 0 }
@@ -94,7 +100,11 @@ class AppPreferences(context: Context) {
 
     @VideoPlayerType
     val videoPlayerType: String
-        get() = sharedPreferences.getString(Constants.PREF_VIDEO_PLAYER_TYPE, VideoPlayerType.EXO_PLAYER)!!
+        get() = sharedPreferences.getString(Constants.PREF_VIDEO_PLAYER_TYPE, defaultVideoPlayerType)!!
+
+    /** The integrated player can play: always (it is the player) or as the fallback of the web one. */
+    val usesIntegratedPlayer: Boolean
+        get() = videoPlayerType == VideoPlayerType.EXO_PLAYER || videoPlayerType == VideoPlayerType.WEB_PLAYER_NATIVE_FALLBACK
 
     val exoPlayerStartLandscapeVideoInLandscape: Boolean
         get() = sharedPreferences.getBoolean(Constants.PREF_EXOPLAYER_START_LANDSCAPE_VIDEO_IN_LANDSCAPE, false)

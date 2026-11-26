@@ -21,7 +21,11 @@ class NativePlayer(
 ) {
 
     @JavascriptInterface
-    fun isEnabled() = appPreferences.videoPlayerType == VideoPlayerType.EXO_PLAYER
+    fun isEnabled() = appPreferences.usesIntegratedPlayer
+
+    /** Only for what the web player could play transcoded (the web asks with playOptions.nativeFallback). */
+    @JavascriptInterface
+    fun isFallbackOnly() = appPreferences.videoPlayerType == VideoPlayerType.WEB_PLAYER_NATIVE_FALLBACK
 
     @JavascriptInterface
     fun loadPlayer(playOptionsRaw: String, preferencesRaw: String) {

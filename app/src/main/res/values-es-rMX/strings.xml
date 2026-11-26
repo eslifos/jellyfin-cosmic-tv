@@ -16,6 +16,8 @@
     <string name="video_player_external_description">Apps externas de reproducción de video como MX Player y VLC</string>
     <string name="video_player_native_description">Basado en ExoPlayer, soporta más formatos y codecs, se integra mejor con el sistema</string>
     <string name="video_player_web_description">El reproductor de video HTML predeterminado de la interfaz Web</string>
+    <string name="video_player_web_native_fallback">Reproductor web, con el integrado de respaldo</string>
+    <string name="video_player_web_native_fallback_description">El mismo reproductor que en el navegador; un video que solo podría reproducir transcodificado se abre en el reproductor integrado</string>
     <string name="video_player_external">Reproductor externo</string>
     <string name="video_player_web">Reproductor web</string>
     <string name="pref_video_player_type_title">Tipo de reproductor de video</string>

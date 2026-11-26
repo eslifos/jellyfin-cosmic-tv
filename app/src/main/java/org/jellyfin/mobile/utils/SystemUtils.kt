@@ -34,7 +34,9 @@ import kotlin.coroutines.resume
 
 fun WebViewFragment.requestNoBatteryOptimizations(rootView: CoordinatorLayout) {
     val powerManager = requireContext().getSystemService(Activity.POWER_SERVICE) as PowerManager
+    // A television is plugged in: there is no battery to spare, so it does not ask
     if (
+        !requireContext().isTelevision() &&
         !appPreferences.ignoreBatteryOptimizations &&
         !powerManager.isIgnoringBatteryOptimizations(BuildConfig.APPLICATION_ID)
     ) {

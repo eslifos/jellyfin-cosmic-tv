@@ -36,6 +36,7 @@ import org.jellyfin.mobile.setup.ConnectFragment
 import org.jellyfin.mobile.utils.AndroidVersion
 import org.jellyfin.mobile.utils.BackPressInterceptor
 import org.jellyfin.mobile.utils.Constants
+import org.jellyfin.mobile.utils.isTelevision
 import org.jellyfin.mobile.utils.Constants.FRAGMENT_WEB_VIEW_EXTRA_SERVER
 import org.jellyfin.mobile.utils.applyDefault
 import org.jellyfin.mobile.utils.applyWindowInsetsAsMargins
@@ -185,6 +186,12 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
         webViewClient = jellyfinWebViewClient
         webChromeClient = JellyfinWebChromeClient(this@WebViewFragment)
         settings.applyDefault()
+        if (requireContext().isTelevision()) {
+            // Televisions report 2x density: without this the page is laid out for a 960 px wide screen and looks
+            // twice its size. The page asks for 1920 px instead (injectionScript.js) and is fitted to the screen.
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+        }
         addJavascriptInterface(NativeInterface(requireContext()), "NativeInterface")
         addJavascriptInterface(nativePlayer, "NativePlayer")
         addJavascriptInterface(externalPlayer, "ExternalPlayer")

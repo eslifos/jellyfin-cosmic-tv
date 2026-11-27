@@ -2,6 +2,7 @@ package org.jellyfin.mobile.player
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.session.MediaSession
@@ -21,6 +22,8 @@ import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.analytics.DefaultAnalyticsCollector
+import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.mediacodec.MediaCodecDecoderException
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
@@ -49,6 +52,7 @@ import org.jellyfin.mobile.player.mediasegments.MediaSegmentRepository
 import org.jellyfin.mobile.player.queue.QueueManager
 import org.jellyfin.mobile.player.source.JellyfinMediaSource
 import org.jellyfin.mobile.player.source.RemoteJellyfinMediaSource
+import org.jellyfin.mobile.player.tv.AudioOutput
 import org.jellyfin.mobile.player.ui.DecoderType
 import org.jellyfin.mobile.player.ui.DisplayPreferences
 import org.jellyfin.mobile.player.ui.PlayState
@@ -242,7 +246,19 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application),
             else -> DefaultLoadControl()
         }
         val appPreferences: AppPreferences = get()
-        val renderersFactory = DefaultRenderersFactory(getApplication()).apply {
+        // The audio output setting (TV): automatic, always decoded, or direct over HDMI
+        val audioCapabilities = AudioOutput.capabilities(getApplication(), appPreferences.audioOutput)
+        val renderersFactory = object : DefaultRenderersFactory(getApplication()) {
+            override fun buildAudioSink(context: Context, enableFloatOutput: Boolean, enableAudioTrackPlaybackParams: Boolean): AudioSink? =
+                when (audioCapabilities) {
+                    null -> super.buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams)
+                    else -> DefaultAudioSink.Builder(context)
+                        .setAudioCapabilities(audioCapabilities)
+                        .setEnableFloatOutput(enableFloatOutput)
+                        .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
+                        .build()
+                }
+        }.apply {
             setEnableDecoderFallback(true) // Fallback only works if initialization fails, not decoding at playback time
             val rendererMode = when {
                 fallbackPreferExtensionRenderers -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER

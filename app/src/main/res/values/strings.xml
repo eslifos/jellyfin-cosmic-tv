@@ -184,4 +184,13 @@
     <string name="download_location_inaccessible_description">The selected download location is no longer accessible. Please select a different folder to resume downloads.</string>
     <string name="voice_search_unavailable">Voice search is not available on this device</string>
     <string name="tv_home_channel_name" translatable="false">Jellyfin Cosmic</string>
+    <string name="pref_match_frame_rate">Match the screen to the video frame rate</string>
+    <string name="pref_match_frame_rate_description">While a video plays, the screen switches to its frame rate (a 24 fps film at 24 Hz) when the TV offers that mode. The screen may go black for a moment.</string>
+    <string name="pref_audio_output">Audio output</string>
+    <string name="audio_output_auto">Automatic</string>
+    <string name="audio_output_auto_description">Surround audio goes as it is to the TV or receiver when it accepts it, and is decoded otherwise</string>
+    <string name="audio_output_stereo">Stereo</string>
+    <string name="audio_output_stereo_description">Always decoded on this device (for TV speakers or sound bars that fail with surround)</string>
+    <string name="audio_output_passthrough">Direct over HDMI</string>
+    <string name="audio_output_passthrough_description">The formats the HDMI device reports (Dolby Digital, Atmos, DTS, TrueHD) go as they are, even if the system has surround off</string>
 </resources>

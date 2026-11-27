@@ -177,4 +177,13 @@
     <string name="download_location_inaccessible_description">La ubicación de descarga seleccionada ya no es accesible. Por favor, seleccione una carpeta diferente para resumir las descargas.</string>
     <string name="pref_exoplayer_direct_play_ass_description">Usa renderizado experimental de subtítulos del lado del cliente, puede que no siempre funcione</string>
     <string name="voice_search_unavailable">La búsqueda por voz no está disponible en este dispositivo</string>
+    <string name="pref_match_frame_rate">Ajustar la frecuencia de la pantalla al video</string>
+    <string name="pref_match_frame_rate_description">Mientras se reproduce un video, la pantalla cambia a su frecuencia (una película de 24 fps a 24 Hz) si la tele ofrece ese modo. La pantalla puede quedar en negro un instante.</string>
+    <string name="pref_audio_output">Salida de audio</string>
+    <string name="audio_output_auto">Automática</string>
+    <string name="audio_output_auto_description">El audio envolvente va tal cual a la tele o al receptor si lo acepta; si no, se decodifica</string>
+    <string name="audio_output_stereo">Estéreo</string>
+    <string name="audio_output_stereo_description">Siempre se decodifica en este dispositivo (para bocinas de la tele o barras de sonido que fallan con audio envolvente)</string>
+    <string name="audio_output_passthrough">Directa por HDMI</string>
+    <string name="audio_output_passthrough_description">Los formatos que reporta el equipo HDMI (Dolby Digital, Atmos, DTS, TrueHD) van tal cual, aunque el sistema tenga el sonido envolvente apagado</string>
 </resources>

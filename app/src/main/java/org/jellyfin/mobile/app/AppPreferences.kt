@@ -138,6 +138,14 @@ class AppPreferences(context: Context) {
     val exoPlayerNetworkBuffer: String
         get() = sharedPreferences.getString(Constants.PREF_EXOPLAYER_NETWORK_BUFFER, Constants.NETWORK_BUFFER_AUTO)!!
 
+    /** The screen takes the frame rate of the video while it plays (TV, player/tv/DisplayModeSwitcher). */
+    val matchFrameRate: Boolean
+        get() = sharedPreferences.getBoolean(Constants.PREF_MATCH_FRAME_RATE, false)
+
+    /** The audio of the integrated player: automatic, always decoded (stereo/PCM) or passed through HDMI. */
+    val audioOutput: String
+        get() = sharedPreferences.getString(Constants.PREF_AUDIO_OUTPUT, Constants.AUDIO_OUTPUT_AUTO)!!
+
     @ExternalPlayerPackage
     var externalPlayerApp: String
         get() = sharedPreferences.getString(Constants.PREF_EXTERNAL_PLAYER_APP, ExternalPlayerPackage.SYSTEM_DEFAULT)!!

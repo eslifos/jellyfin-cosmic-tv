@@ -36,6 +36,7 @@ import org.jellyfin.mobile.app.AppPreferences
 import org.jellyfin.mobile.databinding.ExoPlayerControlViewBinding
 import org.jellyfin.mobile.databinding.FragmentPlayerBinding
 import org.jellyfin.mobile.player.PlayerException
+import org.jellyfin.mobile.player.tv.DisplayModeSwitcher
 import org.jellyfin.mobile.player.PlayerViewModel
 import org.jellyfin.mobile.player.interaction.PlayOptions
 import org.jellyfin.mobile.player.interaction.PlayerWebPreferences
@@ -79,6 +80,7 @@ class PlayerFragment : Fragment(), BackPressInterceptor {
     private lateinit var playerFullscreenHelper: PlayerFullscreenHelper
     lateinit var playerLockScreenHelper: PlayerLockScreenHelper
     lateinit var playerGestureHelper: PlayerGestureHelper
+    private lateinit var displayModeSwitcher: DisplayModeSwitcher
 
     private val currentVideoStream: MediaStream?
         get() = viewModel.mediaSourceOrNull?.selectedVideoStream
@@ -98,6 +100,7 @@ class PlayerFragment : Fragment(), BackPressInterceptor {
 
         val window = requireActivity().window
         playerFullscreenHelper = PlayerFullscreenHelper(window)
+        displayModeSwitcher = DisplayModeSwitcher(window)
 
         // Observe ViewModel
         viewModel.player.observe(this) { player ->
@@ -126,6 +129,12 @@ class PlayerFragment : Fragment(), BackPressInterceptor {
             } else if (appPreferences.exoPlayerStartLandscapeVideoInLandscape) {
                 // Auto-switch to landscape for landscape videos if enabled
                 requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            }
+
+            // The screen at the frame rate of the video (setting, when the screen has that mode)
+            if (appPreferences.matchFrameRate) {
+                val stream = mediaSource.selectedVideoStream
+                displayModeSwitcher.match(stream?.realFrameRate ?: stream?.averageFrameRate ?: 0f)
             }
 
             // Update title and player menus
@@ -451,6 +460,7 @@ class PlayerFragment : Fragment(), BackPressInterceptor {
             // Reset screen brightness
             window.brightness = BRIGHTNESS_OVERRIDE_NONE
         }
+        displayModeSwitcher.restore()
     }
 
     fun setPlayerMenuHelper(menuHelper: PlayerMenuHelper) {

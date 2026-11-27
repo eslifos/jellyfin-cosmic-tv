@@ -42,6 +42,8 @@ import org.jellyfin.mobile.webapp.RemotePlayerService
 import org.jellyfin.mobile.webapp.WebViewFragment
 import org.jellyfin.mobile.webapp.WebappFunctionChannel
 import org.jellyfin.mobile.tvhome.TvHomeWorker
+import org.jellyfin.mobile.player.tv.DisplayModeSwitcher
+import org.jellyfin.mobile.app.AppPreferences
 import org.jellyfin.mobile.tvhome.TvLinks
 import org.json.JSONObject
 import timber.log.Timber
@@ -231,6 +233,13 @@ class MainActivity : AppCompatActivity() {
                 fragment.onUserLeaveHint()
             }
         }
+    }
+
+    private val displayModeSwitcher by lazy { DisplayModeSwitcher(window) }
+
+    /** A video of the web player at [fps] (0: it stopped): the screen at its frame rate, when the setting is on. */
+    fun matchFrameRate(fps: Float) {
+        if (fps > 0f && get<AppPreferences>().matchFrameRate) displayModeSwitcher.match(fps) else displayModeSwitcher.restore()
     }
 
     /** Voice search with the system's recognizer, in the language of the system (its default). */

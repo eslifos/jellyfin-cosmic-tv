@@ -109,6 +109,7 @@ class ActivityEventHandler(
                 mainViewModel.resetServer()
             }
             ActivityEvent.StartVoiceSearch -> startVoiceSearch()
+            is ActivityEvent.MatchFrameRate -> matchFrameRate(event.fps)
             ActivityEvent.ExitApp -> {
                 if (serviceBinder?.isPlaying == true) {
                     moveTaskToBack(false)

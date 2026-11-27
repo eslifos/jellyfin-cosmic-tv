@@ -61,6 +61,7 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
     private lateinit var horizontalGesturePreference: Preference
     private lateinit var directPlayAssPreference: Preference
     private lateinit var networkBufferPreference: Preference
+    private lateinit var audioOutputPreference: Preference
     private lateinit var externalPlayerChoicePreference: Preference
     private lateinit var downloadLocationPreference: Preference
 
@@ -136,6 +137,7 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
                 horizontalGesturePreference.enabled = integrated
                 directPlayAssPreference.enabled = integrated
                 networkBufferPreference.enabled = integrated
+                audioOutputPreference.enabled = integrated
                 externalPlayerChoicePreference.enabled = selection == VideoPlayerType.EXTERNAL_PLAYER
             }
         }
@@ -200,6 +202,23 @@ class SettingsFragment : Fragment(), BackPressInterceptor {
         networkBufferPreference = singleChoice(Constants.PREF_EXOPLAYER_NETWORK_BUFFER, networkBufferOptions) {
             titleRes = R.string.pref_exoplayer_network_buffer
             initialSelection = Constants.NETWORK_BUFFER_AUTO
+            enabled = appPreferences.usesIntegratedPlayer
+        }
+
+        // TV: the screen and the audio of the TV or the receiver
+        checkBox(Constants.PREF_MATCH_FRAME_RATE) {
+            titleRes = R.string.pref_match_frame_rate
+            summaryRes = R.string.pref_match_frame_rate_description
+            defaultValue = false
+        }
+        val audioOutputOptions = listOf(
+            SelectionItem(Constants.AUDIO_OUTPUT_AUTO, R.string.audio_output_auto, R.string.audio_output_auto_description),
+            SelectionItem(Constants.AUDIO_OUTPUT_STEREO, R.string.audio_output_stereo, R.string.audio_output_stereo_description),
+            SelectionItem(Constants.AUDIO_OUTPUT_PASSTHROUGH, R.string.audio_output_passthrough, R.string.audio_output_passthrough_description),
+        )
+        audioOutputPreference = singleChoice(Constants.PREF_AUDIO_OUTPUT, audioOutputOptions) {
+            titleRes = R.string.pref_audio_output
+            initialSelection = Constants.AUDIO_OUTPUT_AUTO
             enabled = appPreferences.usesIntegratedPlayer
         }
 

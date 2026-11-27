@@ -1,13 +1,19 @@
 package org.jellyfin.mobile.player.deviceprofile
 
+import android.content.Context
+import android.hardware.display.DisplayManager
 import android.media.MediaCodecList
 import android.media.MediaFormat
+import android.view.Display
+import androidx.core.content.getSystemService
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.jellyfin.mobile.app.AppPreferences
 import org.jellyfin.mobile.player.deviceprofile.DeviceProfileBuilder.Companion.AVAILABLE_AUDIO_CODECS
 import org.jellyfin.mobile.player.deviceprofile.DeviceProfileBuilder.Companion.AVAILABLE_VIDEO_CODECS
 import org.jellyfin.mobile.player.deviceprofile.DeviceProfileBuilder.Companion.SUPPORTED_CONTAINER_FORMATS
+import org.jellyfin.mobile.player.tv.OutputCapabilities
+import org.jellyfin.mobile.utils.AndroidVersion
 import org.jellyfin.mobile.utils.Constants
 import org.jellyfin.sdk.model.api.CodecProfile
 import org.jellyfin.sdk.model.api.CodecType
@@ -22,10 +28,31 @@ import org.jellyfin.sdk.model.api.ProfileConditionValue
 import org.jellyfin.sdk.model.api.SubtitleDeliveryMethod
 import org.jellyfin.sdk.model.api.SubtitleProfile
 import org.jellyfin.sdk.model.api.TranscodingProfile
+import org.jellyfin.sdk.model.api.VideoRangeType
+import timber.log.Timber
 
 class DeviceProfileBuilder(
     private val appPreferences: AppPreferences,
+    private val context: Context,
 ) {
+    /**
+     * The video ranges the screen shows as they are (SDR, HDR10, HDR10+, HLG, Dolby Vision): the server tone maps the
+     * rest, instead of sending HDR that a screen without it shows washed out.
+     */
+    private val videoRangeTypes: List<VideoRangeType> by lazy {
+        val hdrTypes = if (AndroidVersion.isAtLeastN) {
+            context.getSystemService<DisplayManager>()?.getDisplay(Display.DEFAULT_DISPLAY)?.hdrCapabilities?.supportedHdrTypes?.toSet().orEmpty()
+        } else {
+            emptySet()
+        }
+        val hasDolbyVisionDecoder = MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.any { info ->
+            !info.isEncoder && info.supportedTypes.any { it.equals(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION, ignoreCase = true) }
+        }
+        OutputCapabilities.videoRangeTypes(hdrTypes, hasDolbyVisionDecoder).also { ranges ->
+            Timber.i("Device profile: video ranges %s (HDR types %s, Dolby Vision decoder %s)", ranges, hdrTypes, hasDolbyVisionDecoder)
+        }
+    }
+
     private val supportedVideoCodecs: Array<Array<String>>
     private val supportedAudioCodecs: Array<Array<String>>
     private val videoCodecsProfiles: Map<String, Set<String>>
@@ -180,23 +207,37 @@ class DeviceProfileBuilder(
         videoCodec: String,
     ): CodecProfile? {
         val profilesSet = videoCodecsProfiles[videoCodec]
-        if (profilesSet?.isNotEmpty() != true) {
-            return null
+        val conditions = buildList {
+            if (profilesSet?.isNotEmpty() == true) {
+                add(
+                    ProfileCondition(
+                        condition = ProfileConditionType.EQUALS_ANY,
+                        property = ProfileConditionValue.VIDEO_PROFILE,
+                        value = profilesSet.joinToString("|"),
+                        isRequired = false,
+                    ),
+                )
+            }
+            // The codecs that carry HDR: only the ranges the screen shows
+            if (videoCodec in HDR_VIDEO_CODECS) {
+                add(
+                    ProfileCondition(
+                        condition = ProfileConditionType.EQUALS_ANY,
+                        property = ProfileConditionValue.VIDEO_RANGE_TYPE,
+                        value = videoRangeTypes.joinToString("|") { it.serialName },
+                        isRequired = false,
+                    ),
+                )
+            }
         }
+        if (conditions.isEmpty()) return null
 
         return CodecProfile(
             type = CodecType.VIDEO,
             container = container,
             codec = videoCodec,
             applyConditions = listOf(),
-            conditions = listOf(
-                ProfileCondition(
-                    condition = ProfileConditionType.EQUALS_ANY,
-                    property = ProfileConditionValue.VIDEO_PROFILE,
-                    value = profilesSet.joinToString("|"),
-                    isRequired = false,
-                ),
-            ),
+            conditions = conditions,
         )
     }
 
@@ -238,6 +279,9 @@ class DeviceProfileBuilder(
     companion object {
         private const val EXTERNAL_PLAYER_PROFILE_NAME = Constants.APP_INFO_NAME + " External Player"
         private const val DEFAULT_H264_MAX_LEVEL = "41"
+
+        /** Video codecs that may carry HDR or Dolby Vision. */
+        private val HDR_VIDEO_CODECS = setOf("hevc", "av1", "vp9")
 
         /**
          * List of container formats supported by ExoPlayer

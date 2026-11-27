@@ -76,6 +76,15 @@ class NativeInterface(private val context: Context) : KoinComponent {
     @JavascriptInterface
     fun isTelevision(): Boolean = context.isTelevision()
 
+    /**
+     * The web player started a video of [fps] frames per second (0: it stopped): the screen takes that frame rate,
+     * when the setting is on and the screen has the mode.
+     */
+    @JavascriptInterface
+    fun setVideoFrameRate(fps: Float) {
+        activityEventHandler.emit(ActivityEvent.MatchFrameRate(fps))
+    }
+
     /** The link of the TV home screen the app was opened with ("play/<id>" or "details/<id>"), once; null if none. */
     @JavascriptInterface
     fun takePendingLink(): String? = TvLinks.take()

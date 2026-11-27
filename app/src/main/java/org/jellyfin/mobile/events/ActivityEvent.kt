@@ -17,4 +17,5 @@ sealed class ActivityEvent {
     data object ExitApp : ActivityEvent()
     data object OpenDownloads : ActivityEvent()
     data object StartVoiceSearch : ActivityEvent()
+    class MatchFrameRate(val fps: Float) : ActivityEvent()
 }

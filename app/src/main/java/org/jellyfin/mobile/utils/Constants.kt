@@ -15,6 +15,12 @@ object Constants {
     const val MINIMUM_WEB_VIEW_VERSION = 80
     const val SHOW_PROGRESS_BAR_DELAY = 1000L
     const val INITIAL_CONNECTION_TIMEOUT = 10000L // 10 seconds
+
+    /** TV: how long the server may take before the loading screen says it is not found. */
+    const val TV_CONNECTION_TIMEOUT = 15000L
+
+    /** TV: the web is loading (a new version can take long on a busy server); past this it is shown as it is. */
+    const val TV_WEB_READY_TIMEOUT = 60000L
     val MAIN_BUNDLE_PATH_REGEX = Regex(""".*/main\.[^/\s]+\.bundle\.js""")
     const val CAST_SDK_PATH = "cast_sender.js"
     const val SESSION_CAPABILITIES_PATH = "sessions/capabilities/full"
@@ -49,6 +55,8 @@ object Constants {
     const val AUDIO_OUTPUT_AUTO = "auto"
     const val AUDIO_OUTPUT_STEREO = "stereo"
     const val AUDIO_OUTPUT_PASSTHROUGH = "passthrough"
+    const val PREF_SUBTITLE_SIZE = "pref_subtitle_size"
+    const val PREF_TV_TRAILERS = "pref_tv_trailers"
     const val PREF_EXTERNAL_PLAYER_APP = "pref_external_player_app"
     const val PREF_SUBTITLE_STYLE = "pref_subtitle_style"
     const val PREF_STORAGE_LOCATION = "pref_storage_location"

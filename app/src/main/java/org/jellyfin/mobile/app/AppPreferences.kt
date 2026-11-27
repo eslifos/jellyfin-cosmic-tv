@@ -7,6 +7,7 @@ import androidx.core.content.edit
 import org.jellyfin.mobile.downloads.DownloadMethod
 import org.jellyfin.mobile.player.mediasegments.MediaSegmentAction
 import org.jellyfin.mobile.player.mediasegments.toMediaSegmentActionsString
+import org.jellyfin.mobile.player.tv.SubtitleSize
 import org.jellyfin.mobile.settings.ExternalPlayerPackage
 import org.jellyfin.mobile.settings.VideoPlayerType
 import org.jellyfin.mobile.utils.Constants
@@ -145,6 +146,16 @@ class AppPreferences(context: Context) {
     /** The audio of the integrated player: automatic, always decoded (stereo/PCM) or passed through HDMI. */
     val audioOutput: String
         get() = sharedPreferences.getString(Constants.PREF_AUDIO_OUTPUT, Constants.AUDIO_OUTPUT_AUTO)!!
+
+    /** The size of the subtitles, the one of the web player too (SubtitleSize; TV, bridged by TvSettingsBridge). */
+    var subtitleSize: String
+        get() = sharedPreferences.getString(Constants.PREF_SUBTITLE_SIZE, SubtitleSize.MEDIUM)!!
+        set(value) = sharedPreferences.edit { putString(Constants.PREF_SUBTITLE_SIZE, value) }
+
+    /** TV: the home screen plays the trailer of the title in focus (a setting of the web, bridged by TvSettingsBridge). */
+    var tvTrailers: Boolean
+        get() = sharedPreferences.getBoolean(Constants.PREF_TV_TRAILERS, true)
+        set(value) = sharedPreferences.edit { putBoolean(Constants.PREF_TV_TRAILERS, value) }
 
     @ExternalPlayerPackage
     var externalPlayerApp: String

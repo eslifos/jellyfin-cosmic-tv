@@ -16,7 +16,7 @@ fun AppTheme(content: @Composable () -> Unit) {
         darkColors(
             primary = Color(0xFF00A4DC),
             primaryVariant = Color(0xFF202020),
-            background = Color(0xFF101010),
+            background = Color(0xFF080810),
             surface = Color(0xFF363636),
             error = Color(0xFFCF6679),
             onPrimary = Color.White,

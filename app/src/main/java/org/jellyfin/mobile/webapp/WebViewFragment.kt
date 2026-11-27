@@ -1,5 +1,10 @@
 package org.jellyfin.mobile.webapp
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.graphics.Rect
 import android.net.Uri
@@ -8,6 +13,7 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView
@@ -70,6 +76,13 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
         webViewBinding?.loadingContainer?.isVisible = true
     }
 
+    /** TV: the loading screen stays until the web shows its first screen (see [onWebReady]). */
+    private var tvBoot = false
+    private var bootPulse: Animator? = null
+
+    /** TV: the web never said it was ready (an older web): it is shown anyway. */
+    private val revealRunnable = Runnable { onWebReady() }
+
     // UI
     private var webViewBinding: FragmentWebviewBinding? = null
 
@@ -103,6 +116,7 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
                 runOnUiThread {
                     webViewBinding.loadingContainer.isVisible = false
                     webView.fadeIn()
+                    if (tvBoot) webView.postDelayed(revealRunnable, Constants.TV_WEB_READY_TIMEOUT)
                 }
                 requestNoBatteryOptimizations(webViewBinding.root)
             }
@@ -151,6 +165,19 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
             }
         }
 
+        // TV: the loading screen of the app, not the one of the web
+        tvBoot = requireContext().isTelevision()
+        if (tvBoot) {
+            webViewBinding!!.bootContainer.isVisible = true
+            startBootPulse()
+            webViewBinding!!.bootRetry.setOnClickListener { retryBoot() }
+            webViewBinding!!.bootChangeServer.setOnClickListener {
+                webView.removeCallbacks(timeoutRunnable)
+                webView.stopLoading()
+                onSelectServer(error = false)
+            }
+        }
+
         // Setup WebView
         webView.initialize()
 
@@ -175,7 +202,87 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
 
     override fun onDestroyView() {
         super.onDestroyView()
+        bootPulse?.cancel()
+        bootPulse = null
         webViewBinding = null
+    }
+
+    /** TV: the web shows its first screen (NativeInterface.webReady): the loading screen fades out over it. */
+    fun onWebReady() {
+        val binding = webViewBinding ?: return
+        binding.webView.removeCallbacks(revealRunnable)
+        if (!tvBoot || !binding.bootContainer.isVisible || binding.bootActions.isVisible) return
+        bootPulse?.cancel()
+        binding.bootContainer.animate()
+            .alpha(0f)
+            .setDuration(BOOT_FADE_MS)
+            .withEndAction {
+                binding.bootContainer.isVisible = false
+                binding.bootContainer.alpha = 1f
+            }
+        binding.webView.requestFocus()
+    }
+
+    /** The mark breathing while the server answers. */
+    private fun startBootPulse() {
+        val logo = webViewBinding?.bootLogo ?: return
+        bootPulse?.cancel()
+        bootPulse = AnimatorSet().apply {
+            val scale = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, BOOT_PULSE_SCALE)
+            val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, BOOT_PULSE_SCALE)
+            val alpha = PropertyValuesHolder.ofFloat(View.ALPHA, 1f, BOOT_PULSE_ALPHA)
+            play(
+                ObjectAnimator.ofPropertyValuesHolder(logo, scale, scaleY, alpha).apply {
+                    duration = BOOT_PULSE_MS
+                    repeatCount = ValueAnimator.INFINITE
+                    repeatMode = ValueAnimator.REVERSE
+                    interpolator = AccelerateDecelerateInterpolator()
+                },
+            )
+            start()
+        }
+    }
+
+    /** TV: the server did not answer: its name, Retry and Change server, the focus on Retry. */
+    private fun showBootError() {
+        val binding = webViewBinding ?: return
+        bootPulse?.cancel()
+        binding.bootLogo.apply {
+            scaleX = 1f
+            scaleY = 1f
+            alpha = 1f
+            // Smaller, to leave the message and the buttons the middle of the screen
+            layoutParams = layoutParams.apply {
+                width = resources.getDimensionPixelSize(R.dimen.tv_boot_logo_small)
+                height = width
+            }
+        }
+        val host = Uri.parse(server.hostname).host ?: server.hostname
+        binding.bootTitle.text = getString(R.string.tv_boot_not_found, host)
+        binding.bootTitle.isVisible = true
+        binding.bootMessage.isVisible = true
+        binding.bootActions.isVisible = true
+        binding.bootContainer.isVisible = true
+        binding.bootRetry.requestFocus()
+    }
+
+    private fun retryBoot() {
+        val binding = webViewBinding ?: return
+        binding.bootTitle.isVisible = false
+        binding.bootMessage.isVisible = false
+        binding.bootActions.isVisible = false
+        binding.bootLogo.layoutParams = binding.bootLogo.layoutParams.apply {
+            width = resources.getDimensionPixelSize(R.dimen.tv_boot_logo)
+            height = width
+        }
+        startBootPulse()
+        connected = false
+        binding.webView.apply {
+            stopLoading()
+            removeCallbacks(timeoutRunnable)
+            loadUrl("${server.hostname.trimEnd('/')}/")
+            postDelayed(timeoutRunnable, Constants.TV_CONNECTION_TIMEOUT)
+        }
     }
 
     private fun WebView.initialize() {
@@ -198,8 +305,12 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
         addJavascriptInterface(mediaSegments, "MediaSegments")
 
         loadUrl("${server.hostname.trimEnd('/')}/")
-        postDelayed(timeoutRunnable, Constants.INITIAL_CONNECTION_TIMEOUT)
-        postDelayed(showLoadingContainerRunnable, Constants.SHOW_PROGRESS_BAR_DELAY)
+        if (tvBoot) {
+            postDelayed(timeoutRunnable, Constants.TV_CONNECTION_TIMEOUT)
+        } else {
+            postDelayed(timeoutRunnable, Constants.INITIAL_CONNECTION_TIMEOUT)
+            postDelayed(showLoadingContainerRunnable, Constants.SHOW_PROGRESS_BAR_DELAY)
+        }
     }
 
     private fun showOutdatedWebViewDialog(webView: WebView) {
@@ -262,8 +373,25 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
     }
 
     private fun handleError() {
+        runOnUiThread { showErrorOnUiThread() }
+    }
+
+    private fun showErrorOnUiThread() {
+        // TV, still loading: the server is not found, said on the loading screen
+        if (tvBoot && !connected && webViewBinding != null) {
+            webViewBinding?.webView?.removeCallbacks(timeoutRunnable)
+            showBootError()
+            return
+        }
         connected = false
         onSelectServer(error = true)
+    }
+
+    private companion object {
+        const val BOOT_FADE_MS = 300L
+        const val BOOT_PULSE_MS = 1200L
+        const val BOOT_PULSE_SCALE = 1.04f
+        const val BOOT_PULSE_ALPHA = 0.85f
     }
 
     override fun onShowFileChooser(intent: Intent, filePathCallback: ValueCallback<Array<Uri>>) {

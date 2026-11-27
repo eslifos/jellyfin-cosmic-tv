@@ -11,6 +11,21 @@
         viewport.content = 'width=1920, user-scalable=no';
     }
 
+    // The TV app keeps its own loading screen until the web shows its first screen: the first one that stays (on
+    // start the web may go on at once to another one, as Who is watching?)
+    if (window.NativeInterface && typeof window.NativeInterface.webReady === 'function') {
+        const SETTLE_MS = 800;
+        let timer = 0;
+        const onViewShow = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.removeEventListener('viewshow', onViewShow, true);
+                window.NativeInterface.webReady();
+            }, SETTLE_MS);
+        };
+        document.addEventListener('viewshow', onViewShow, true);
+    }
+
     const scripts = [
         '/native/nativeshell.js',
         '/native/EventEmitter.js',

@@ -16,6 +16,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 import org.jellyfin.mobile.BuildConfig
+import org.jellyfin.mobile.app.AppPreferences
 import org.jellyfin.mobile.events.ActivityEvent
 import org.jellyfin.mobile.events.ActivityEventHandler
 import org.jellyfin.mobile.player.deviceprofile.DeviceProfileBuilder
@@ -50,6 +51,7 @@ class NativeInterface(private val context: Context) : KoinComponent {
     private val activityEventHandler: ActivityEventHandler = get()
     private val remoteVolumeProvider: RemoteVolumeProvider by inject()
     private val deviceProfileBuilder: DeviceProfileBuilder by inject()
+    private val appPreferences: AppPreferences by inject()
 
     @SuppressLint("HardwareIds")
     @JavascriptInterface
@@ -83,6 +85,18 @@ class NativeInterface(private val context: Context) : KoinComponent {
     @JavascriptInterface
     fun setVideoFrameRate(fps: Float) {
         activityEventHandler.emit(ActivityEvent.MatchFrameRate(fps))
+    }
+
+    /** The values of the TV settings that live in the web (TvSettings), on start and on each change. */
+    @JavascriptInterface
+    fun setTvSettings(json: String) {
+        TvSettings.receive(appPreferences, json)
+    }
+
+    /** The web shows its first screen (injectionScript.js): the TV takes away its loading screen. */
+    @JavascriptInterface
+    fun webReady() {
+        activityEventHandler.emit(ActivityEvent.WebReady)
     }
 
     /** The link of the TV home screen the app was opened with ("play/<id>" or "details/<id>"), once; null if none. */

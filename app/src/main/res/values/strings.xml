@@ -88,7 +88,7 @@
     <string name="external_player_invalid_player">No valid external player selected. Playback tracking disabled.</string>
     <string name="external_player_unknown_error">Unknown error in external player. Playback tracking disabled.</string>
 
-    <string name="activity_name_settings">Jellyfin Settings</string>
+    <string name="activity_name_settings">Jellyfin Cosmic settings</string>
     <string name="pref_category_music_player">Music player</string>
     <string name="pref_music_notification_always_dismissible_title">Dismissible player notification</string>
     <string name="pref_music_notification_always_dismissible_summary_off">The notification can only be dismissed when playback is paused</string>
@@ -193,4 +193,31 @@
     <string name="audio_output_stereo_description">Always decoded on this device (for TV speakers or sound bars that fail with surround)</string>
     <string name="audio_output_passthrough">Direct over HDMI</string>
     <string name="audio_output_passthrough_description">The formats the HDMI device reports (Dolby Digital, Atmos, DTS, TrueHD) go as they are, even if the system has surround off</string>
+    <string name="tv_connect_title">Choose your server</string>
+    <string name="tv_connect_searching">Looking for servers on your network…</string>
+    <string name="tv_connect_saved">Used before</string>
+    <string name="tv_connect_found">On your network</string>
+    <string name="tv_connect_or_type">Or type its address</string>
+    <string name="tv_connect_phone_title">Send it from your phone</string>
+    <string name="tv_connect_phone_hint">Scan the code with your phone\'s camera and type the address there.</string>
+    <string name="tv_connect_connecting">Connecting to %1$s…</string>
+    <string name="connect_phone_page_title">Connect Jellyfin Cosmic</string>
+    <string name="connect_phone_page_label">Server address</string>
+    <string name="connect_phone_page_send">Send to the TV</string>
+    <string name="connect_phone_page_sent">Done. Look at your TV: it is connecting.</string>
+    <string name="connect_phone_page_error">Type the address of the server.</string>
+    <string name="tv_boot_not_found">We could not find %1$s</string>
+    <string name="tv_boot_not_found_hint">Check that the server is on and that the TV is connected to the network.</string>
+    <string name="tv_boot_retry">Retry</string>
+    <string name="tv_boot_change_server">Change server</string>
+    <string name="pref_category_tv">Screen, sound and subtitles</string>
+    <string name="pref_subtitle_size">Subtitle size</string>
+    <string name="subtitle_size_smaller">Smaller</string>
+    <string name="subtitle_size_small">Small</string>
+    <string name="subtitle_size_medium">Normal</string>
+    <string name="subtitle_size_large">Large</string>
+    <string name="subtitle_size_larger">Larger</string>
+    <string name="subtitle_size_extra_large">Extra large</string>
+    <string name="pref_tv_trailers">Automatic trailers</string>
+    <string name="pref_tv_trailers_summary">The home screen plays the trailer of the title in focus</string>
 </resources>

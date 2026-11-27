@@ -16,4 +16,7 @@
     <dimen name="exo_chapter_marking_width">3dp</dimen>
     <dimen name="exo_chapter_marking_height">15dp</dimen>
     <dimen name="trickplay_thumbnail_height">160dp</dimen>
+    <!-- TV: the mark of the loading screen, the size of the one of the system splash screen (so it does not jump) -->
+    <dimen name="tv_boot_logo">272dp</dimen>
+    <dimen name="tv_boot_logo_small">160dp</dimen>
 </resources>

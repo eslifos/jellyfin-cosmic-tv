@@ -1,5 +1,9 @@
 package org.jellyfin.mobile.player.ui
 
+import android.view.accessibility.CaptioningManager
+import androidx.core.content.getSystemService
+import androidx.media3.ui.SubtitleView
+import org.jellyfin.mobile.player.tv.SubtitleSize
 import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.pm.ActivityInfo
@@ -222,6 +226,12 @@ class PlayerFragment : Fragment(), BackPressInterceptor {
 
         // Disable controller animations
         playerView.setControllerAnimationEnabled(false)
+
+        // The size of the subtitles of the settings (the one of the web player too), over the one of the system
+        playerView.subtitleView?.apply {
+            val systemScale = requireContext().getSystemService<CaptioningManager>()?.fontScale ?: 1f
+            setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * systemScale * SubtitleSize.scale(appPreferences.subtitleSize))
+        }
 
         if (appPreferences.exoPlayerDirectPlayAss) {
             playerView.subtitleView?.apply {

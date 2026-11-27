@@ -21,6 +21,7 @@ import org.jellyfin.mobile.settings.SettingsFragment
 import org.jellyfin.mobile.utils.Constants
 import org.jellyfin.mobile.utils.extensions.addFragment
 import org.jellyfin.mobile.utils.requestDownload
+import org.jellyfin.mobile.webapp.WebViewFragment
 import org.jellyfin.mobile.webapp.WebappFunctionChannel
 import timber.log.Timber
 
@@ -110,6 +111,9 @@ class ActivityEventHandler(
             }
             ActivityEvent.StartVoiceSearch -> startVoiceSearch()
             is ActivityEvent.MatchFrameRate -> matchFrameRate(event.fps)
+            ActivityEvent.WebReady -> {
+                supportFragmentManager.fragments.filterIsInstance<WebViewFragment>().firstOrNull()?.onWebReady()
+            }
             ActivityEvent.ExitApp -> {
                 if (serviceBinder?.isPlaying == true) {
                     moveTaskToBack(false)

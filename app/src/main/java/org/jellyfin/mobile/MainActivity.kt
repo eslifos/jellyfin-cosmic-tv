@@ -8,12 +8,15 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
+import android.speech.RecognizerIntent
+import android.view.KeyEvent
 import android.view.OrientationEventListener
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -37,6 +40,9 @@ import org.jellyfin.mobile.utils.extensions.replaceFragment
 import org.jellyfin.mobile.utils.isWebViewSupported
 import org.jellyfin.mobile.webapp.RemotePlayerService
 import org.jellyfin.mobile.webapp.WebViewFragment
+import org.jellyfin.mobile.webapp.WebappFunctionChannel
+import org.json.JSONObject
+import timber.log.Timber
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.androidx.fragment.android.setupKoinFragmentFactory
@@ -48,6 +54,16 @@ class MainActivity : AppCompatActivity() {
     val bluetoothPermissionHelper: BluetoothPermissionHelper = BluetoothPermissionHelper(this, get())
     val chromecast: IChromecast = Chromecast()
     private val permissionRequestHelper: PermissionRequestHelper by inject()
+    private val webappFunctionChannel: WebappFunctionChannel by inject()
+
+    /** The words heard by the speech recognizer go to the web's search ("cosmicvoicesearch" event). */
+    private val voiceSearch = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val text = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+        if (result.resultCode == RESULT_OK && !text.isNullOrBlank()) {
+            val detail = JSONObject().put("text", text).toString()
+            webappFunctionChannel.call("window.dispatchEvent(new CustomEvent('cosmicvoicesearch', { detail: $detail }));")
+        }
+    }
 
     var serviceBinder: RemotePlayerService.ServiceBinder? = null
         private set
@@ -198,6 +214,41 @@ class MainActivity : AppCompatActivity() {
                 fragment.onUserLeaveHint()
             }
         }
+    }
+
+    /** Voice search with the system's recognizer, in the language of the system (its default). */
+    fun startVoiceSearch() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+        try {
+            voiceSearch.launch(intent)
+        } catch (e: android.content.ActivityNotFoundException) {
+            Timber.w(e, "No speech recognizer on this device")
+            Toast.makeText(this, R.string.voice_search_unavailable, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /**
+     * The search key of the remote opens the search of the web (not while the native player is on screen). Taken
+     * before the views: the WebView with the focus would keep it.
+     */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val onWeb = supportFragmentManager.findFragmentById(R.id.fragment_container) is WebViewFragment
+        if (event.keyCode == KeyEvent.KEYCODE_SEARCH && onWeb) {
+            if (event.action == KeyEvent.ACTION_UP) {
+                webappFunctionChannel.call("window.dispatchEvent(new CustomEvent('cosmicopensearch'));")
+            }
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
+    /** The system's own search (a remote's search key may come this way too): the search of the web instead. */
+    override fun onSearchRequested(): Boolean {
+        webappFunctionChannel.call("window.dispatchEvent(new CustomEvent('cosmicopensearch'));")
+        return true
     }
 
     override fun onStop() {

@@ -75,6 +75,12 @@ class NativeInterface(private val context: Context) : KoinComponent {
     @JavascriptInterface
     fun isTelevision(): Boolean = context.isTelevision()
 
+    /** Listens for a search (speech recognizer of the system, in its language); the words come back as an event. */
+    @JavascriptInterface
+    fun startVoiceSearch() {
+        activityEventHandler.emit(ActivityEvent.StartVoiceSearch)
+    }
+
     @JavascriptInterface
     fun getCodecCapabilities(): String = deviceProfileBuilder.getWebCodecCapabilitiesJson()
 

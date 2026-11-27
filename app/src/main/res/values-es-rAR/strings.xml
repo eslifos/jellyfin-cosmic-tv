@@ -174,4 +174,5 @@
     <string name="download_location_inaccessible">Ubicación de descarga inaccesible</string>
     <string name="download_location_inaccessible_description">La ubicación de descarga seleccionada ya no está disponible, seleccione otra carpeta para reanudar las descargas</string>
     <string name="media_service_car_section_playlists">Listas de reproducción</string>
+    <string name="voice_search_unavailable">La búsqueda por voz no está disponible en este dispositivo</string>
 </resources>

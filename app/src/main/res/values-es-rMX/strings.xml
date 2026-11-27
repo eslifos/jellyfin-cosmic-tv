@@ -160,4 +160,5 @@
         <item quantity="other"/>
     </plurals>
     <string name="download_remove_keep_local">Cuidar archivos locales</string>
+    <string name="voice_search_unavailable">La búsqueda por voz no está disponible en este dispositivo</string>
 </resources>

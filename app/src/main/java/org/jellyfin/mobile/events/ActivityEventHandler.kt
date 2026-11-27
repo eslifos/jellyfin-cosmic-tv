@@ -108,6 +108,7 @@ class ActivityEventHandler(
             ActivityEvent.SelectServer -> {
                 mainViewModel.resetServer()
             }
+            ActivityEvent.StartVoiceSearch -> startVoiceSearch()
             ActivityEvent.ExitApp -> {
                 if (serviceBinder?.isPlaying == true) {
                     moveTaskToBack(false)

@@ -1,9 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Jellyfin Cosmic: the mark (the triangle with an orbit and stars) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="1024"
     android:viewportHeight="1024">
-    <path
-        android:fillColor="@color/splash_fill"
-        android:pathData="m512 284.789466c-57.344 0-241.850182 334.568734-213.736727 391.074914 28.113454 56.50618 399.639277 55.85454 427.473457 0 27.83418-55.85455-156.39273-391.074914-213.73673-391.074914zm140.10182 342.109094c-18.24582 36.58473-261.67855 37.05018-280.11055 0-18.431997-37.05018 102.49309-256.27928 140.00873-256.27928s158.34764 219.60146 140.10182 256.27928zm-140.10182-176.128c-18.99055 0-80.24436 111.05745-70.93527 129.76873 9.30909 18.71127 132.65454 18.52509 141.87054 0s-51.85163-129.76873-70.93527-129.76873z" />
+    <group android:pivotX="512" android:pivotY="512" android:scaleX="0.6" android:scaleY="0.6">
+        <group android:pivotX="512" android:pivotY="540" android:rotation="-16">
+            <path android:pathData="M152,540A360,92 0,0 1 872,540" android:strokeColor="@color/splash_fill" android:strokeWidth="20" android:strokeLineCap="round" android:strokeAlpha="1" />
+        </group>
+        <path android:pathData="m512 284.789466c-57.344 0-241.850182 334.568734-213.736727 391.074914 28.113454 56.50618 399.639277 55.85454 427.473457 0 27.83418-55.85455-156.39273-391.074914-213.73673-391.074914zm140.10182 342.109094c-18.24582 36.58473-261.67855 37.05018-280.11055 0-18.431997-37.05018 102.49309-256.27928 140.00873-256.27928s158.34764 219.60146 140.10182 256.27928zm-140.10182-176.128c-18.99055 0-80.24436 111.05745-70.93527 129.76873 9.30909 18.71127 132.65454 18.52509 141.87054 0s-51.85163-129.76873-70.93527-129.76873z" android:fillColor="@color/splash_fill" />
+        <group android:pivotX="512" android:pivotY="540" android:rotation="-16">
+            <path android:pathData="M152,540A360,92 0,0 0 872,540" android:strokeColor="@color/splash_fill" android:strokeWidth="20" android:strokeLineCap="round" android:strokeAlpha="1" />
+        </group>
+        <path android:pathData="M800,208C807.44,262.56 807.44,262.56 862,270C807.44,277.44 807.44,277.44 800,332C792.56,277.44 792.56,277.44 738,270C792.56,262.56 792.56,262.56 800,208Z" android:fillColor="@color/splash_fill" />
+        <path android:pathData="M236,300C239.6,326.4 239.6,326.4 266,330C239.6,333.6 239.6,333.6 236,360C232.4,333.6 232.4,333.6 206,330C232.4,326.4 232.4,326.4 236,300Z" android:fillColor="@color/splash_fill" />
+        <path android:pathData="M860,450C862.4,467.6 862.4,467.6 880,470C862.4,472.4 862.4,472.4 860,490C857.6,472.4 857.6,472.4 840,470C857.6,467.6 857.6,467.6 860,450Z" android:fillColor="@color/splash_fill" />
+    </group>
 </vector>

@@ -28,6 +28,10 @@ import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import org.jellyfin.mobile.tvhome.TvHomeWorker
+
+private const val PLAYBACK_STOPPED_PATH = "/sessions/playing/stopped"
+private const val LOGOUT_PATH = "/sessions/logout"
 
 abstract class JellyfinWebViewClient(
     private val coroutineScope: CoroutineScope,
@@ -52,6 +56,15 @@ abstract class JellyfinWebViewClient(
             path.contains("/native/") -> assetsPathHandler.inject("native/${url.lastPathSegment}")
             // Load the chrome.cast.js library instead
             path.endsWith(Constants.CAST_SDK_PATH) -> assetsPathHandler.inject("native/chrome.cast.js")
+            // The TV home screen: published again after a playback, cleared on signing out
+            path.endsWith(PLAYBACK_STOPPED_PATH) -> {
+                TvHomeWorker.refresh(webView.context)
+                null
+            }
+            path.endsWith(LOGOUT_PATH) -> {
+                TvHomeWorker.clear(webView.context)
+                null
+            }
             path.endsWith(Constants.SESSION_CAPABILITIES_PATH) -> {
                 coroutineScope.launch {
                     val credentials = suspendCoroutine { continuation ->
@@ -80,6 +93,9 @@ abstract class JellyfinWebViewClient(
 
                     mainViewModel.setupUser(server.id, user, token)
                     webView.initLocale(user)
+                    // Signed in (or another profile): the TV home screen with its programs
+                    TvHomeWorker.schedule(webView.context)
+                    TvHomeWorker.refresh(webView.context)
                 }
                 null
             }

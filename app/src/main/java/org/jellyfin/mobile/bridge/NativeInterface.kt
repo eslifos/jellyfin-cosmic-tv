@@ -19,6 +19,7 @@ import org.jellyfin.mobile.BuildConfig
 import org.jellyfin.mobile.events.ActivityEvent
 import org.jellyfin.mobile.events.ActivityEventHandler
 import org.jellyfin.mobile.player.deviceprofile.DeviceProfileBuilder
+import org.jellyfin.mobile.tvhome.TvLinks
 import org.jellyfin.mobile.utils.Constants
 import org.jellyfin.mobile.utils.isTelevision
 import org.jellyfin.mobile.utils.Constants.EXTRA_ALBUM
@@ -74,6 +75,10 @@ class NativeInterface(private val context: Context) : KoinComponent {
     /** On a television (Android TV, Google TV, Fire TV) the web app uses its TV layout, made for the remote. */
     @JavascriptInterface
     fun isTelevision(): Boolean = context.isTelevision()
+
+    /** The link of the TV home screen the app was opened with ("play/<id>" or "details/<id>"), once; null if none. */
+    @JavascriptInterface
+    fun takePendingLink(): String? = TvLinks.take()
 
     /** Listens for a search (speech recognizer of the system, in its language); the words come back as an event. */
     @JavascriptInterface

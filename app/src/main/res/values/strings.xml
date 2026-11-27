@@ -183,4 +183,5 @@
     <string name="download_location_inaccessible">Download location inaccessible</string>
     <string name="download_location_inaccessible_description">The selected download location is no longer accessible. Please select a different folder to resume downloads.</string>
     <string name="voice_search_unavailable">Voice search is not available on this device</string>
+    <string name="tv_home_channel_name" translatable="false">Jellyfin Cosmic</string>
 </resources>

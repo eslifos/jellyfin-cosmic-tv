@@ -73,6 +73,9 @@ fun WebSettings.applyDefault() {
     javaScriptEnabled = true
     domStorageEnabled = true
     setSupportMultipleWindows(true)
+    // A video started without a key pressed in the app (a program of the TV home screen, the next episode) plays
+    // with its sound; otherwise the WebView pauses it and the web leaves it minimized
+    mediaPlaybackRequiresUserGesture = false
 }
 
 /**

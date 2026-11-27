@@ -41,6 +41,8 @@ import org.jellyfin.mobile.utils.isWebViewSupported
 import org.jellyfin.mobile.webapp.RemotePlayerService
 import org.jellyfin.mobile.webapp.WebViewFragment
 import org.jellyfin.mobile.webapp.WebappFunctionChannel
+import org.jellyfin.mobile.tvhome.TvHomeWorker
+import org.jellyfin.mobile.tvhome.TvLinks
 import org.json.JSONObject
 import timber.log.Timber
 import org.koin.android.ext.android.get
@@ -160,6 +162,21 @@ class MainActivity : AppCompatActivity() {
 
         // Setup Chromecast
         chromecast.initializePlugin(this)
+
+        // Opened from the TV home screen (a program or the channel)
+        receiveTvLink(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        receiveTvLink(intent)
+    }
+
+    /** A link of the TV home screen: kept for the web, which is told (or takes it once loaded). */
+    private fun receiveTvLink(intent: Intent?) {
+        if (TvLinks.receive(intent)) {
+            webappFunctionChannel.call("window.dispatchEvent(new CustomEvent('cosmictvlink'));")
+        }
     }
 
     override fun onStart() {
@@ -252,6 +269,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
+        // Leaving the app (often after watching something): the TV home screen up to date
+        TvHomeWorker.refresh(this)
         super.onStop()
         orientationListener.disable()
     }

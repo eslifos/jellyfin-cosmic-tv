@@ -10,6 +10,9 @@
         android:name="android.software.leanback"
         android:required="false" />
 
+    <!-- The TV home screen: "Watch next" and the channel (tvhome/TvHomePublisher) -->
+    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
+    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
@@ -65,6 +68,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <!-- the programs and the channel on the TV home screen (tvhome/TvLinks) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="jellyfincosmic" />
             </intent-filter>
             <!-- declare legacy support for voice actions -->
             <intent-filter>

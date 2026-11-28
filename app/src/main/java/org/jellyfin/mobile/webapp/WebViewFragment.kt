@@ -138,8 +138,8 @@ class WebViewFragment : Fragment(), BackPressInterceptor, JellyfinWebChromeClien
         super.onViewCreated(view, savedInstanceState)
         val webView = webViewBinding!!.webView
 
-        // Apply window insets
-        webView.applyWindowInsetsAsMargins()
+        // Apply window insets; the web page also shrinks above the keyboard, so the field being typed in stays in view
+        webView.applyWindowInsetsAsMargins(aboveKeyboard = true)
 
         // Setup exclusion rects for gestures
         if (AndroidVersion.isAtLeastQ) {

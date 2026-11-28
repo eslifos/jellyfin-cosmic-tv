@@ -37,9 +37,16 @@ fun LayoutInflater.withThemedContext(context: Context, @StyleRes style: Int): La
     return cloneInContext(ContextThemeWrapper(context, style))
 }
 
-fun View.applyWindowInsetsAsMargins() {
+/**
+ * Keeps the view off the system bars. With [aboveKeyboard], also above the on-screen keyboard while it shows: the view
+ * gets shorter, so a field being typed in is not hidden under the keyboard (the window is drawn edge to edge and does
+ * not resize for it by itself).
+ */
+fun View.applyWindowInsetsAsMargins(aboveKeyboard: Boolean = false) {
+    val types = WindowInsetsCompat.Type.systemBars() or
+        (if (aboveKeyboard) WindowInsetsCompat.Type.ime() else 0)
     ViewCompat.setOnApplyWindowInsetsListener(this) { _, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        val insets = windowInsets.getInsets(types)
         updateLayoutParams<MarginLayoutParams> {
             setMargins(insets.left, insets.top, insets.right, insets.bottom)
         }
